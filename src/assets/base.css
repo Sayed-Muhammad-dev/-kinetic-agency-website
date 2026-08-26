@@ -1,0 +1,130 @@
+/* ---------------------------------------------------------------------------
+ * Kinetic — global tokens and resets
+ *
+ * Near-black canvas with a single electric-lime accent. Confident rather than
+ * corporate-safe: oversized display type, thin hairline rules, and colour used
+ * sparingly enough that it lands when it appears.
+ * ------------------------------------------------------------------------ */
+
+:root {
+  --bg: #08090a;
+  --bg-alt: #0e0f11;
+  --fg: #f4f4f2;
+  --muted: #a1a3a0;
+  --dim: #6d706e;
+  --accent: #d4ff3f;
+  --line: rgba(244, 244, 242, 0.1);
+  --line-strong: rgba(244, 244, 242, 0.22);
+  --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.95rem 1.8rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 280ms ease,
+    color 280ms ease,
+    border-color 280ms ease,
+    transform 280ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-accent:hover {
+  background: #e6ff6d;
+}
+
+.btn-ghost {
+  border-color: var(--line-strong);
+  color: var(--fg);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
