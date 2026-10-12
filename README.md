@@ -1,5 +1,8 @@
 # Kinetic — Modern Digital Agency Website
 
+> **Application upgrade — October 2026:** This repository now includes a persistent Node application API and an authenticated operations workspace at `/workspace`. Run `npm run admin:bootstrap` once, then follow [the application runbook](docs/FULLSTACK.md). CMS collections use reviewed draft/published snapshots; financial applications use protected operational records. Existing public deployments have not been changed. Older frontend descriptions below document the original interface and sample data.
+
+
 A single-page site for a fictional brand and product studio. Bold, dark and
 deliberately not corporate-safe: oversized display type, a single electric-lime
 accent, and colour used sparingly enough that it lands when it appears.

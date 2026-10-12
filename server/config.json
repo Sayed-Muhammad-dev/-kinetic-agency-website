@@ -1,0 +1,244 @@
+{
+  "id": "kinetic",
+  "name": "Kinetic Studio",
+  "accent": "#ff9b6c",
+  "notice": "Demonstration agency brand and case studies. Client names and example metrics describe fictional work, not verified commercial outcomes.",
+  "collections": {
+    "services": {
+      "label": "Services",
+      "cms": true,
+      "fields": {
+        "number": {
+          "type": "text",
+          "optional": false
+        },
+        "title": {
+          "type": "text",
+          "optional": false
+        },
+        "blurb": {
+          "type": "text",
+          "optional": false
+        },
+        "deliverables": {
+          "type": "array"
+        }
+      }
+    },
+    "caseStudies": {
+      "label": "Case studies",
+      "cms": true,
+      "fields": {
+        "id": {
+          "type": "text",
+          "optional": true
+        },
+        "client": {
+          "type": "text",
+          "optional": false
+        },
+        "sector": {
+          "type": "text",
+          "optional": false
+        },
+        "title": {
+          "type": "text",
+          "optional": false
+        },
+        "blurb": {
+          "type": "text",
+          "optional": false
+        },
+        "year": {
+          "type": "text",
+          "optional": false
+        },
+        "services": {
+          "type": "array"
+        },
+        "image": {
+          "type": "url",
+          "optional": true
+        },
+        "metric": {
+          "type": "object",
+          "fields": {
+            "value": {
+              "type": "text",
+              "optional": false
+            },
+            "label": {
+              "type": "text",
+              "optional": false
+            }
+          }
+        }
+      }
+    },
+    "team": {
+      "label": "Team",
+      "cms": true,
+      "fields": {
+        "name": {
+          "type": "text",
+          "optional": false
+        },
+        "role": {
+          "type": "text",
+          "optional": false
+        },
+        "bio": {
+          "type": "text",
+          "optional": false
+        },
+        "image": {
+          "type": "url",
+          "optional": true
+        }
+      }
+    },
+    "stats": {
+      "label": "Stats",
+      "cms": true,
+      "fields": {
+        "value": {
+          "type": "text",
+          "optional": false
+        },
+        "label": {
+          "type": "text",
+          "optional": false
+        }
+      }
+    },
+    "process": {
+      "label": "Process",
+      "cms": true,
+      "fields": {
+        "phase": {
+          "type": "text",
+          "optional": false
+        },
+        "title": {
+          "type": "text",
+          "optional": false
+        },
+        "body": {
+          "type": "text",
+          "optional": false
+        }
+      }
+    },
+    "studio": {
+      "label": "Studio",
+      "cms": true,
+      "fields": {
+        "name": {
+          "type": "text",
+          "optional": false
+        },
+        "tagline": {
+          "type": "text",
+          "optional": false
+        },
+        "intro": {
+          "type": "text",
+          "optional": false
+        },
+        "email": {
+          "type": "email"
+        },
+        "locations": {
+          "type": "array"
+        }
+      }
+    },
+    "briefs": {
+      "label": "Project briefs",
+      "cms": false,
+      "fields": {
+        "name": {
+          "type": "text",
+          "optional": false
+        },
+        "email": {
+          "type": "email"
+        },
+        "company": {
+          "type": "text",
+          "optional": true
+        },
+        "budget": {
+          "type": "text",
+          "optional": false
+        },
+        "brief": {
+          "type": "text",
+          "optional": false
+        },
+        "status": {
+          "type": "text",
+          "options": [
+            "new",
+            "qualified",
+            "proposal",
+            "won",
+            "declined"
+          ],
+          "optional": true
+        }
+      },
+      "publicSubmit": true
+    },
+    "inquiries": {
+      "label": "Contact inbox",
+      "cms": false,
+      "fields": {
+        "name": {
+          "type": "text",
+          "optional": false
+        },
+        "email": {
+          "type": "email"
+        },
+        "message": {
+          "type": "text",
+          "optional": false
+        },
+        "interest": {
+          "type": "text",
+          "optional": true
+        },
+        "status": {
+          "type": "text",
+          "options": [
+            "new",
+            "in-progress",
+            "resolved"
+          ],
+          "optional": true
+        }
+      },
+      "publicSubmit": true
+    },
+    "subscribers": {
+      "label": "Newsletter subscribers",
+      "cms": false,
+      "fields": {
+        "email": {
+          "type": "email"
+        },
+        "status": {
+          "type": "text",
+          "options": [
+            "new",
+            "active",
+            "unsubscribed"
+          ],
+          "optional": true
+        }
+      },
+      "publicSubmit": true
+    }
+  }
+}

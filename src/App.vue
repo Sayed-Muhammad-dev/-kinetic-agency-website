@@ -1,36 +1,97 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import SiteHeader from "@/components/SiteHeader.vue";
 import CursorFollower from "@/components/CursorFollower.vue";
 import RevealBlock from "@/components/RevealBlock.vue";
-import { caseStudies, clients, process, services, stats, studio, team } from "@/data/studio";
+import {
+  caseStudies as initialCases,
+  clients,
+  process as initialProcess,
+  services as initialServices,
+  stats as initialStats,
+  studio as initialStudio,
+  team as initialTeam,
+} from "@/data/studio";
 
+const caseStudies = ref(initialCases),
+  process = ref(initialProcess),
+  services = ref(initialServices),
+  stats = ref(initialStats),
+  studio = ref(initialStudio),
+  team = ref(initialTeam);
+const sending = ref(false);
+onMounted(async () => {
+  try {
+    const response = await fetch("/api/app/public");
+    if (!response.ok) throw new Error("Content unavailable");
+    const { collections } = await response.json();
+    caseStudies.value = collections.caseStudies;
+    process.value = collections.process;
+    services.value = collections.services;
+    stats.value = collections.stats;
+    studio.value = collections.studio[0] || initialStudio;
+    team.value = collections.team;
+  } catch {
+    errors.value = {
+      brief: "Published content could not be loaded. Retry shortly.",
+    };
+  }
+});
 const activeCase = ref<string | null>(null);
 
-const form = ref({ name: "", email: "", company: "", budget: "25–50k", brief: "" });
+const form = ref({
+  name: "",
+  email: "",
+  company: "",
+  budget: "25–50k",
+  brief: "",
+});
 const errors = ref<Record<string, string>>({});
 const sent = ref(false);
 
 const budgets = ["Under 25k", "25–50k", "50–120k", "120k+"];
 
-const sectors = computed(() => Array.from(new Set(caseStudies.map((item) => item.sector))));
+const sectors = computed(() =>
+  Array.from(new Set(caseStudies.value.map((item) => item.sector))),
+);
 
-function submit() {
+async function submit() {
   const next: Record<string, string> = {};
   if (!form.value.name.trim()) next.name = "Tell us who you are.";
-  if (!form.value.email.includes("@")) next.email = "That email does not look right.";
-  if (form.value.brief.trim().length < 20) next.brief = "A sentence or two, at least.";
+  if (!form.value.email.includes("@"))
+    next.email = "That email does not look right.";
+  if (form.value.brief.trim().length < 20)
+    next.brief = "A sentence or two, at least.";
 
   errors.value = next;
   if (Object.keys(next).length > 0) return;
 
-  sent.value = true;
+  if (sending.value) return;
+  sending.value = true;
+  try {
+    const response = await fetch("/api/app/submit/briefs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form.value),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    sent.value = true;
+  } catch (error) {
+    errors.value = {
+      brief: error instanceof Error ? error.message : "Submission failed",
+    };
+  } finally {
+    sending.value = false;
+  }
 }
 </script>
 
 <template>
   <CursorFollower />
-  <SiteHeader />
+  <SiteHeader /><a class="workspace-link" href="/workspace"
+    >Studio workspace ↗</a
+  >
 
   <main id="top">
     <!-- ------------------------------------------------------------ Hero -->
@@ -43,9 +104,15 @@ function submit() {
         </RevealBlock>
 
         <h1 class="hero-title">
-          <RevealBlock :delay="60" as="span" class="line">We build brands</RevealBlock>
-          <RevealBlock :delay="140" as="span" class="line">that <em>refuse</em></RevealBlock>
-          <RevealBlock :delay="220" as="span" class="line">to blend in.</RevealBlock>
+          <RevealBlock :delay="60" as="span" class="line"
+            >We build brands</RevealBlock
+          >
+          <RevealBlock :delay="140" as="span" class="line"
+            >that <em>refuse</em></RevealBlock
+          >
+          <RevealBlock :delay="220" as="span" class="line"
+            >to blend in.</RevealBlock
+          >
         </h1>
 
         <RevealBlock :delay="320">
@@ -54,8 +121,12 @@ function submit() {
 
         <RevealBlock :delay="400">
           <div class="hero-actions">
-            <a class="btn btn-accent" href="#work" data-cursor-grow>See the work</a>
-            <a class="btn btn-ghost" href="#contact" data-cursor-grow>Start a project</a>
+            <a class="btn btn-accent" href="#work" data-cursor-grow
+              >See the work</a
+            >
+            <a class="btn btn-ghost" href="#contact" data-cursor-grow
+              >Start a project</a
+            >
           </div>
         </RevealBlock>
 
@@ -74,7 +145,10 @@ function submit() {
     <section class="marquee-band" aria-label="Selected clients">
       <!-- The track is duplicated so the loop meets itself at -50%. -->
       <div class="marquee">
-        <span v-for="(client, index) in [...clients, ...clients]" :key="`${client}-${index}`">
+        <span
+          v-for="(client, index) in [...clients, ...clients]"
+          :key="`${client}-${index}`"
+        >
           {{ client }}
         </span>
       </div>
@@ -108,10 +182,15 @@ function submit() {
           >
             <div class="work-media">
               <img :src="project.image" :alt="project.client" loading="lazy" />
-              <div class="work-overlay" :class="{ 'is-open': activeCase === project.id }">
+              <div
+                class="work-overlay"
+                :class="{ 'is-open': activeCase === project.id }"
+              >
                 <p class="work-blurb">{{ project.blurb }}</p>
                 <ul class="work-services">
-                  <li v-for="service in project.services" :key="service">{{ service }}</li>
+                  <li v-for="service in project.services" :key="service">
+                    {{ service }}
+                  </li>
                 </ul>
               </div>
               <div class="work-metric">
@@ -125,7 +204,9 @@ function submit() {
                 <p class="work-client">{{ project.client }}</p>
                 <h3 class="work-title">{{ project.title }}</h3>
               </div>
-              <span class="work-meta">{{ project.sector }} · {{ project.year }}</span>
+              <span class="work-meta"
+                >{{ project.sector }} · {{ project.year }}</span
+              >
             </div>
           </article>
         </RevealBlock>
@@ -155,7 +236,9 @@ function submit() {
               <p>{{ service.blurb }}</p>
             </div>
             <ul class="service-deliverables">
-              <li v-for="item in service.deliverables" :key="item">{{ item }}</li>
+              <li v-for="item in service.deliverables" :key="item">
+                {{ item }}
+              </li>
             </ul>
           </article>
         </RevealBlock>
@@ -170,7 +253,11 @@ function submit() {
       </RevealBlock>
 
       <div class="process-grid">
-        <RevealBlock v-for="(step, index) in process" :key="step.phase" :delay="index * 80">
+        <RevealBlock
+          v-for="(step, index) in process"
+          :key="step.phase"
+          :delay="index * 80"
+        >
           <article class="process-card">
             <span class="process-phase">{{ step.phase }}</span>
             <h3>{{ step.title }}</h3>
@@ -184,14 +271,19 @@ function submit() {
     <section id="studio" class="section section-alt">
       <RevealBlock class="section-head">
         <p class="eyebrow">The studio</p>
-        <h2 class="section-title">Twelve people. No account managers.</h2>
+        <h2 class="section-title">Demo studio team. No account managers.</h2>
         <p class="section-lede">
-          You work with the people doing the work. That is the entire business model.
+          You work with the people doing the work. That is the entire business
+          model.
         </p>
       </RevealBlock>
 
       <div class="team-grid">
-        <RevealBlock v-for="(person, index) in team" :key="person.name" :delay="(index % 3) * 80">
+        <RevealBlock
+          v-for="(person, index) in team"
+          :key="person.name"
+          :delay="(index % 3) * 80"
+        >
           <article class="member" data-cursor-grow>
             <div class="member-photo">
               <img :src="person.image" :alt="person.name" loading="lazy" />
@@ -213,14 +305,17 @@ function submit() {
             Tell us what is wrong.<br />We will tell you if we can fix it.
           </h2>
           <p class="section-lede">
-            We take on roughly one project a month. If it is not a fit we will say so within two
-            working days, and usually point you somewhere better.
+            We take on roughly one project a month. If it is not a fit we will
+            say so within two working days, and usually point you somewhere
+            better.
           </p>
 
           <ul class="contact-details">
             <li>
               <span>Email</span>
-              <a :href="`mailto:${studio.email}`" data-cursor-grow>{{ studio.email }}</a>
+              <a :href="`mailto:${studio.email}`" data-cursor-grow>{{
+                studio.email
+              }}</a>
             </li>
             <li v-for="location in studio.locations" :key="location">
               <span>Studio</span>
@@ -233,13 +328,21 @@ function submit() {
           <form v-if="!sent" class="form" novalidate @submit.prevent="submit">
             <label class="field">
               <span>Your name</span>
-              <input v-model="form.name" type="text" :class="{ invalid: errors.name }" />
+              <input
+                v-model="form.name"
+                type="text"
+                :class="{ invalid: errors.name }"
+              />
               <small v-if="errors.name">{{ errors.name }}</small>
             </label>
 
             <label class="field">
               <span>Email</span>
-              <input v-model="form.email" type="email" :class="{ invalid: errors.email }" />
+              <input
+                v-model="form.email"
+                type="email"
+                :class="{ invalid: errors.email }"
+              />
               <small v-if="errors.email">{{ errors.email }}</small>
             </label>
 
@@ -274,7 +377,11 @@ function submit() {
               <small v-if="errors.brief">{{ errors.brief }}</small>
             </label>
 
-            <button class="btn btn-accent form-submit" type="submit" data-cursor-grow>
+            <button
+              class="btn btn-accent form-submit"
+              type="submit"
+              data-cursor-grow
+            >
               Send it
             </button>
           </form>
@@ -282,8 +389,9 @@ function submit() {
           <div v-else class="form-sent">
             <h3>Got it, {{ form.name.split(" ")[0] }}.</h3>
             <p>
-              We read every enquiry ourselves. Expect a reply from one of us within two working
-              days — a real answer either way, not an auto-responder.
+              We read every enquiry ourselves. Expect a reply from one of us
+              within two working days — a real answer either way, not an
+              auto-responder.
             </p>
             <button class="btn btn-ghost" type="button" @click="sent = false">
               Send another
@@ -325,8 +433,16 @@ function submit() {
   position: absolute;
   inset: -20%;
   background:
-    radial-gradient(42% 46% at 18% 26%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 68%),
-    radial-gradient(36% 40% at 82% 18%, rgba(120, 120, 255, 0.14), transparent 66%);
+    radial-gradient(
+      42% 46% at 18% 26%,
+      color-mix(in srgb, var(--accent) 22%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      36% 40% at 82% 18%,
+      rgba(120, 120, 255, 0.14),
+      transparent 66%
+    );
   filter: blur(24px);
   animation: drift 26s ease-in-out infinite alternate;
   pointer-events: none;
@@ -409,7 +525,13 @@ function submit() {
   padding: 1.9rem 0;
   border-block: 1px solid var(--line);
   overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 10%,
+    #000 90%,
+    transparent
+  );
 }
 
 .marquee {
@@ -503,7 +625,9 @@ function submit() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), filter 600ms ease;
+  transition:
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 600ms ease;
   filter: grayscale(1) contrast(1.05);
 }
 
@@ -516,10 +640,17 @@ function submit() {
   position: absolute;
   inset: auto 0 0 0;
   padding: clamp(1.25rem, 3vw, 2.25rem);
-  background: linear-gradient(0deg, rgba(8, 9, 10, 0.94), rgba(8, 9, 10, 0.55) 62%, transparent);
+  background: linear-gradient(
+    0deg,
+    rgba(8, 9, 10, 0.94),
+    rgba(8, 9, 10, 0.55) 62%,
+    transparent
+  );
   transform: translateY(18px);
   opacity: 0;
-  transition: opacity 420ms ease, transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 420ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .work-overlay.is-open {
@@ -667,7 +798,9 @@ function submit() {
   border-radius: 999px;
   font-size: 0.76rem;
   color: var(--muted);
-  transition: border-color 240ms ease, color 240ms ease;
+  transition:
+    border-color 240ms ease,
+    color 240ms ease;
 }
 
 .service:hover .service-deliverables li {
@@ -687,7 +820,10 @@ function submit() {
   border: 1px solid var(--line);
   border-radius: 4px;
   height: 100%;
-  transition: border-color 320ms ease, transform 320ms ease, background 320ms ease;
+  transition:
+    border-color 320ms ease,
+    transform 320ms ease,
+    background 320ms ease;
 }
 
 .process-card:hover {
@@ -737,7 +873,9 @@ function submit() {
   height: 100%;
   object-fit: cover;
   filter: grayscale(1);
-  transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1), filter 500ms ease;
+  transition:
+    transform 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 500ms ease;
 }
 
 .member:hover .member-photo img {
@@ -876,7 +1014,10 @@ function submit() {
   color: var(--muted);
   font-size: 0.82rem;
   cursor: pointer;
-  transition: border-color 220ms ease, color 220ms ease, background 220ms ease;
+  transition:
+    border-color 220ms ease,
+    color 220ms ease,
+    background 220ms ease;
 }
 
 .chip:hover {
