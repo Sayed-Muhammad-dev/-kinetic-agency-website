@@ -8,14 +8,18 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "admin:bootstrap": "node --env-file-if-exists=.env server/bootstrap.mjs",
-    "db:provision": "node --env-file-if-exists=.env server/provision.mjs",
+    "db:provision": "npm run db:migrate:deploy",
     "test:server": "node --test server/backend.test.mjs",
     "dev:api": "node --env-file-if-exists=.env server/http.mjs",
-    "start:full": "node --env-file-if-exists=.env server/http.mjs --production"
+    "start:full": "node --env-file-if-exists=.env server/http.mjs --production",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:status": "prisma migrate status"
   },
   "dependencies": {
     "vue": "^3.5.13",
-    "@neondatabase/serverless": "^1.0.2"
+    "@neondatabase/serverless": "^1.0.2",
+    "prisma": "7.10.0",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@types/node": "^26.3.0",
